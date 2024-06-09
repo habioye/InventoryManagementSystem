@@ -99,7 +99,7 @@ public class InventoryManagementApp {
         }
     }
 
-    public static void displayInstructions() {
+    public static void displayInventoryInstructions() {
         System.out.println("""
                 1. Create an item in the database
                 2. Read the item with a name
@@ -185,7 +185,21 @@ public class InventoryManagementApp {
     private static void runInventory(String user) {
 
     }
-    private static void insertUserNamePassword(String user) {
+    private static void insertUserNamePassword(String user, String pass) {
+        try (Connection connection = DriverManager.getConnection(url, username,password)) {
+            // Create operation
+            String createQuery = "INSERT INTO users ( username, password) VALUES ( ?, ?)";
+            try (PreparedStatement createStatement = connection.prepareStatement(createQuery)) {
+                createStatement.setString(1, user);
+                createStatement.setString(2, pass);
+                createStatement.executeUpdate();
+                System.out.println("Record created successfully");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -198,6 +212,7 @@ public class InventoryManagementApp {
         int count;
         String user;
         String pass;
+        boolean exiting;
 
         // Main Inventory Visit Loop
         while (true) {
@@ -214,14 +229,34 @@ public class InventoryManagementApp {
                         System.out.println("Enter your password: ");
                         pass = getNotNullInput(scanner);
                         if (userpassExists(user,pass)) {
+                            runInventory(user);
                             break;
                         } else {
                             System.out.println("The User Name and password combination does not exist");
+                            exiting = false;
+                            while (true) {
+                                System.out.println("""
+                                        1. To try again
+                                        2. Exit""");
+                                choice = scanner.nextInt();
+                                switch (choice) {
+                                    case 1 -> {
+                                    }
+                                    case 2-> {
+                                        exiting = true;
+                                    }
+                                    default -> {
+                                        System.out.println("You chose an invalid option");
+                                    }
+
+                                }
+                                if (exiting) break;
+                            }
                         }
 
 
                     }
-                    runInventory(user);
+
                 }
                 case 2 -> {
                     // Register
@@ -229,21 +264,27 @@ public class InventoryManagementApp {
                         System.out.println("Enter your new User Name: ");
                         user = getNotNullInput(scanner);
                         if (userExists(user)) {
+                            System.out.println("The username is already in use");
                             continue;
                         }
                         System.out.println("Enter your new password: ");
                         pass = getNotNullInput(scanner);
+                        insertUserNamePassword(user,pass);
 
                     }
                 }
                 case 3 -> {
-                    //
-
+                    // View Instructions
+                    displayDirections();
                 }
                 case 4 -> {
+                    // Exit
+                    System.out.println("Exiting.");
+                    return;
 
                 }
                 default -> {
+                    System.out.println("You selected an invalid option");
 
                 }
             }
