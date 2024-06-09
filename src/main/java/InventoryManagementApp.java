@@ -134,68 +134,122 @@ public class InventoryManagementApp {
 
     public static void displayMainMenu() {
         System.out.println("""       
-                                      Select from the following options for the inventory.
-                                      1. Login
-                                      2. Register
-                                      3. View Instructions
-                                      4. Exit
-                                      """);
+                Select from the following options for the inventory.
+                1. Login
+                2. Register
+                3. View Instructions
+                4. Exit
+                """);
     }
 
-
-public static void main(String[] args) {
-   displayDirections();
-
-    Scanner scanner = new Scanner(System.in);
-    int choice;
-    String name;
-    int count;
-
-    // Main Inventory Visit Loop
-    while (true) {
-        displayMainMenu();
-        displayInventory();
-
-        choice = scanner.nextInt();
-        switch (choice) {
-            case 1 -> {
-                System.out.println("Enter (String name, int count)");
-                name = scanner.next();
-                count = scanner.nextInt();
-                createItem(name, count);
-
-
-            }
-            case 2 -> {
-                System.out.println("Enter (String name)");
-                name = scanner.next();
-                readItem(name);
-            }
-            case 3 -> {
-                System.out.println("Enter (String name, int count)");
-                name = scanner.next();
-                count = scanner.nextInt();
-                updateItem(name, count);
-            }
-            case 4 -> {
-                System.out.println("Enter (String name)");
-                name = scanner.next();
-                deleteItem(name);
-            }
-            case 5 -> {
-                System.out.println("Exited the inventory");
-                break;
-
-            }
-            default -> {
-                System.out.println("You entered an improper value. Make sure the choice an integer in the" +
-                        " range 1 to 5 (inclusive)");
-
+    public static String getNotNullInput(Scanner scanner) {
+        String ret;
+        while (true) {
+            ret = scanner.nextLine();
+            if (ret.isEmpty() || ret.isBlank()) {
+                System.out.println("Do not give a blank input");
+            } else {
+                return ret;
             }
         }
-        return;
     }
 
+    public static boolean userpassExists(String user, String pass) {
+        try(Connection connection = DriverManager.getConnection(url,username,password)) {
+            String readQuery = "Select * from users where user = " + user+" and password = "+pass;
+            try(Statement readStatement = connection.createStatement();
+            ResultSet resultSet = readStatement.executeQuery(readQuery)) {
+                return resultSet.next();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean userExists(String user) {
+        try(Connection connection = DriverManager.getConnection(url,username,password)) {
+            String readQuery = "Select * from users where user = " + user;
+            try(Statement readStatement = connection.createStatement();
+                ResultSet resultSet = readStatement.executeQuery(readQuery)) {
+                return resultSet.next();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    private static void runInventory(String user) {
 
-}
+    }
+    private static void insertUserNamePassword(String user) {
+
+    }
+
+    public static void main(String[] args) {
+        displayDirections();
+
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+        String name;
+        int count;
+        String user;
+        String pass;
+
+        // Main Inventory Visit Loop
+        while (true) {
+            displayMainMenu();
+            displayInventory();
+
+            choice = scanner.nextInt();
+            switch (choice) {
+                case 1 -> {
+                    // Login
+                    while (true) {
+                        System.out.println("Enter your User Name: ");
+                        user = getNotNullInput(scanner);
+                        System.out.println("Enter your password: ");
+                        pass = getNotNullInput(scanner);
+                        if (userpassExists(user,pass)) {
+                            break;
+                        } else {
+                            System.out.println("The User Name and password combination does not exist");
+                        }
+
+
+                    }
+                    runInventory(user);
+                }
+                case 2 -> {
+                    // Register
+                    while (true) {
+                        System.out.println("Enter your new User Name: ");
+                        user = getNotNullInput(scanner);
+                        if (userExists(user)) {
+                            continue;
+                        }
+                        System.out.println("Enter your new password: ");
+                        pass = getNotNullInput(scanner);
+
+                    }
+                }
+                case 3 -> {
+                    //
+
+                }
+                case 4 -> {
+
+                }
+                default -> {
+
+                }
+            }
+            return;
+        }
+
+
+    }
 }
