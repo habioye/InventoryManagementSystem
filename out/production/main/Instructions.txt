@@ -1,0 +1,14 @@
+Day 2: Deep Dive into Relational Databases and JDBC
+Lesson Topics:
+Advanced SQL Concepts (Joins, Subqueries, Indexes)
+JDBC Batch Processing
+Transactions and ACID Properties
+Assignments:
+Day 2 (Single Dev): Inventory Management System
+Design a Java application to manage inventory using a relational database.
+Implement CRUD operations (Create, Read, Update, Delete) for products.
+Ensure data integrity with transactions for inventory updates.
+Display real-time inventory status and allow users to search for products.
+Extensions:
+Implement user authentication and authorization.
+Add functionality for generating reports on inventory status and sales.
