@@ -2,12 +2,12 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class InventoryManagementApp {
-    String url = "jdbc:mysql://localhost:3306/inventorydb";
-    String username = "root";
-    String password = "password";
+    static String url = "jdbc:mysql://localhost:3306/inventorydb";
+    static String username = "root";
+    static String password = "root";
 
     // adds the item in the inventory
-    public static boolean createItem(String name, int count) {
+    public static boolean createItem(String name, int count, String user) {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             // Create operation
             String createQuery = "INSERT INTO Inventory (name, count) VALUES (?, ?)";
@@ -28,16 +28,16 @@ public class InventoryManagementApp {
     }
 
     // gets the item value from the inventory
-    public static String readItem(String name) {
+    public static String readItem(String name, String user) {
         String retName = "";
         int count = 0;
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
-            String readQuery = "SELECT name, count FROM Inventory where name = "+name;
+            String readQuery = "SELECT name, count FROM Inventory where name = " + name;
             try (Statement readStatement = connection.createStatement();
                  ResultSet resultSet = readStatement.executeQuery(readQuery)) {
                 while (resultSet.next()) {
-                   retName = resultSet.getString("name");
-                   count = resultSet.getInt("count");
+                    retName = resultSet.getString("name");
+                    count = resultSet.getInt("count");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -47,12 +47,12 @@ public class InventoryManagementApp {
             System.out.println(e.getStackTrace());
             return null;
         }
-        String returnval = retName+" "+count;
+        String returnval = retName + " " + count;
         return returnval;
     }
 
     // updates the item value from the inventory.
-    public static boolean updateItem(String name, int count) {
+    public static boolean updateItem(String name, int count, String user) {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             String updateQuery = "UPDATE Inventory SET count = ? WHERE name = ?";
             try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
@@ -72,7 +72,7 @@ public class InventoryManagementApp {
     }
 
     // deletes the item from the inventory
-    public static boolean deleteItem(String name) {
+    public static boolean deleteItem(String name, String) {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             String deleteQuery = "DELETE FROM Inventory WHERE name = ?";
             try (PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery)) {
@@ -91,7 +91,7 @@ public class InventoryManagementApp {
     }
 
     // Shows the entire inventory (excluding the id)
-    public static void displayInventory() {
+    public static void displayInventory(String user) {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
 
         } catch (Exception e) {
@@ -109,60 +109,93 @@ public class InventoryManagementApp {
                 """);
     }
 
-    public static void main(String[] args) {
+    public static void displayDirections() {
         System.out.println("""
-                Hello User, here is a view of the inventory:
+                    
+                                            Hello User, this is an inventory managment system.
+                                            You can login with your username and password.\s
+                                            You can register with a unique username and password combination.
+                                            You can update the the count for each item using increment/decrement/setvalue options.
+                                            You can Logout when you are done""\");
+                    
                 """);
-
-        Scanner scanner = new Scanner();
-        int choice;
-        String name;
-        int count;
-
-        // Main Inventory Visit Loop
-        while (true) {
-            displayInventory();
-            displayInstructions();
-            choice = scanner.nextInt();
-            switch (choice) {
-                case 1 -> {
-                    System.out.println("Enter (String name, int count)");
-                    name = scanner.next();
-                    count = scanner.nextInt();
-                    createItem(name, count);
-
-
-                }
-                case 2 -> {
-                    System.out.println("Enter (String name)");
-                    name = scanner.next();
-                    readItem(name);
-                }
-                case 3 -> {
-                    System.out.println("Enter (String name, int count)");
-                    name = scanner.next();
-                    count = scanner.nextInt();
-                    updateItem(name, count);
-                }
-                case 4 -> {
-                    System.out.println("Enter (String name)");
-                    name = scanner.next();
-                    deleteItem(name);
-                }
-                case 5 -> {
-                    System.out.println("Exited the inventory");
-                    break;
-
-                }
-                default -> {
-                    System.out.println("You entered an imporper value. Make sure the choice an integer in the" +
-                            " range 1 to 5 (inclusive)");
-
-                }
-            }
-            return;
-        }
-
-
     }
+
+    public static void displayUserMenu() {
+        System.out.println("""
+                Select from the following options.
+                1. View Entire Inventory
+                2. Add item
+                3. Remove Item
+                4. Logout
+                5. Exit
+                """);
+    }
+
+    public static void displayMainMenu() {
+        System.out.println("""       
+                                      Select from the following options for the inventory.
+                                      1. Login
+                                      2. Register
+                                      3. View Instructions
+                                      4. Exit
+                                      """);
+    }
+
+
+public static void main(String[] args) {
+   displayDirections();
+
+    Scanner scanner = new Scanner(System.in);
+    int choice;
+    String name;
+    int count;
+
+    // Main Inventory Visit Loop
+    while (true) {
+        displayMainMenu();
+        displayInventory();
+
+        choice = scanner.nextInt();
+        switch (choice) {
+            case 1 -> {
+                System.out.println("Enter (String name, int count)");
+                name = scanner.next();
+                count = scanner.nextInt();
+                createItem(name, count);
+
+
+            }
+            case 2 -> {
+                System.out.println("Enter (String name)");
+                name = scanner.next();
+                readItem(name);
+            }
+            case 3 -> {
+                System.out.println("Enter (String name, int count)");
+                name = scanner.next();
+                count = scanner.nextInt();
+                updateItem(name, count);
+            }
+            case 4 -> {
+                System.out.println("Enter (String name)");
+                name = scanner.next();
+                deleteItem(name);
+            }
+            case 5 -> {
+                System.out.println("Exited the inventory");
+                break;
+
+            }
+            default -> {
+                System.out.println("You entered an improper value. Make sure the choice an integer in the" +
+                        " range 1 to 5 (inclusive)");
+
+            }
+        }
+        return;
+    }
+
+
+}
 }
